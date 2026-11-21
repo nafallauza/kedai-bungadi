@@ -1,0 +1,18 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="24" height="24" fill="#1E1A1A"/>
+<g id="Aset">
+<path d="M-656 -1061C-656 -1062.1 -655.105 -1063 -654 -1063H1142C1143.1 -1063 1144 -1062.1 1144 -1061V1075C1144 1076.1 1143.1 1077 1142 1077H-654C-655.105 1077 -656 1076.1 -656 1075V-1061Z" fill="#F4F4F5"/>
+<path d="M-654 -1063V-1062H1142V-1063V-1064H-654V-1063ZM1144 -1061H1143V1075H1144H1145V-1061H1144ZM1142 1077V1076H-654V1077V1078H1142V1077ZM-656 1075H-655V-1061H-656H-657V1075H-656ZM-654 1077V1076C-654.552 1076 -655 1075.55 -655 1075H-656H-657C-657 1076.66 -655.657 1078 -654 1078V1077ZM1144 1075H1143C1143 1075.55 1142.55 1076 1142 1076V1077V1078C1143.66 1078 1145 1076.66 1145 1075H1144ZM1142 -1063V-1062C1142.55 -1062 1143 -1061.55 1143 -1061H1144H1145C1145 -1062.66 1143.66 -1064 1142 -1064V-1063ZM-654 -1063V-1064C-655.657 -1064 -657 -1062.66 -657 -1061H-656H-655C-655 -1061.55 -654.552 -1062 -654 -1062V-1063Z" fill="black" fill-opacity="0.1"/>
+<g id="Ikon kategori">
+<g id="Makanan">
+<rect x="-47.5" y="-18.5" width="119" height="87" rx="11.5" fill="white"/>
+<rect x="-47.5" y="-18.5" width="119" height="87" rx="11.5" stroke="#E4E4E7"/>
+<g id="Ikon/Makanan">
+<path id="Vector" d="M3 2V9C3 10.1 3.9 11 5 11H9C9.53043 11 10.0391 10.7893 10.4142 10.4142C10.7893 10.0391 11 9.53043 11 9V2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_2" d="M7 2V22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_3" d="M21 15V2C19.6739 2 18.4021 2.52678 17.4645 3.46447C16.5268 4.40215 16 5.67392 16 7V13C16 14.1 16.9 15 18 15H21ZM21 15V22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+</g>
+</g>
+</g>
+</g>
+</svg>

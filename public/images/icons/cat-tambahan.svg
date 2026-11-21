@@ -1,0 +1,18 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="24" height="24" fill="#1E1A1A"/>
+<g id="Aset">
+<path d="M-920 -1061C-920 -1062.1 -919.105 -1063 -918 -1063H878C879.105 -1063 880 -1062.1 880 -1061V1075C880 1076.1 879.105 1077 878 1077H-918C-919.105 1077 -920 1076.1 -920 1075V-1061Z" fill="#F4F4F5"/>
+<path d="M-918 -1063V-1062H878V-1063V-1064H-918V-1063ZM880 -1061H879V1075H880H881V-1061H880ZM878 1077V1076H-918V1077V1078H878V1077ZM-920 1075H-919V-1061H-920H-921V1075H-920ZM-918 1077V1076C-918.552 1076 -919 1075.55 -919 1075H-920H-921C-921 1076.66 -919.657 1078 -918 1078V1077ZM880 1075H879C879 1075.55 878.552 1076 878 1076V1077V1078C879.657 1078 881 1076.66 881 1075H880ZM878 -1063V-1062C878.552 -1062 879 -1061.55 879 -1061H880H881C881 -1062.66 879.657 -1064 878 -1064V-1063ZM-918 -1063V-1064C-919.657 -1064 -921 -1062.66 -921 -1061H-920H-919C-919 -1061.55 -918.552 -1062 -918 -1062V-1063Z" fill="black" fill-opacity="0.1"/>
+<g id="Ikon kategori">
+<g id="Tambahan">
+<rect x="-47.5" y="-18.5" width="119" height="87" rx="11.5" fill="white"/>
+<rect x="-47.5" y="-18.5" width="119" height="87" rx="11.5" stroke="#E4E4E7"/>
+<g id="Ikon/Tambahan">
+<path id="Vector" d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_2" d="M8 12H16" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_3" d="M12 8V16" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+</g>
+</g>
+</g>
+</g>
+</svg>

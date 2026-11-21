@@ -1,0 +1,45 @@
+{
+  "$description": "Token desain Wedang Uwuh Bu Ngadi (format DTCG). Sama dengan @theme di src/index.css. Bisa disinkronkan ke Figma Variables lewat plugin FigCraft.",
+  "color": {
+    "kopi": {
+      "$type": "color",
+      "50": { "$value": "#f7f3ee" },
+      "100": { "$value": "#ece3d6" },
+      "200": { "$value": "#d9c9b2" },
+      "300": { "$value": "#bfa88a" },
+      "400": { "$value": "#9c8264" },
+      "500": { "$value": "#7b6249" },
+      "600": { "$value": "#5f4a37" },
+      "700": { "$value": "#47382a" },
+      "800": { "$value": "#31271e" },
+      "900": { "$value": "#221b15" },
+      "950": { "$value": "#15110d", "$description": "Latar malam / kayu gelap" }
+    },
+    "terakota": {
+      "$type": "color",
+      "50": { "$value": "#fbf3ee" },
+      "100": { "$value": "#f5e2d6" },
+      "200": { "$value": "#eac2ab" },
+      "300": { "$value": "#dc9a79" },
+      "400": { "$value": "#cc7550" },
+      "500": { "$value": "#b85d39" },
+      "600": { "$value": "#9d4a2c" },
+      "700": { "$value": "#7f3b25", "$description": "Aksen utama: tombol & harga (dari warna harga di buku menu)" },
+      "800": { "$value": "#663123" },
+      "900": { "$value": "#542a1f" },
+      "950": { "$value": "#2e140e" }
+    },
+    "kertas": { "$type": "color", "$value": "#f4ecdc", "$description": "Kertas menu tua" },
+    "kertas-tua": { "$type": "color", "$value": "#e8dcc4" },
+    "emas": { "$type": "color", "$value": "#e8c98a", "$description": "Emas logo cangkir, hanya untuk aksen kecil di latar gelap" }
+  },
+  "font": {
+    "display": { "$type": "fontFamily", "$value": ["Cormorant Garamond", "Georgia", "serif"] },
+    "sans": { "$type": "fontFamily", "$value": ["Plus Jakarta Sans", "system-ui", "sans-serif"] }
+  },
+  "radius": {
+    "control": { "$type": "dimension", "$value": "9999px", "$description": "Tombol berbentuk pil" },
+    "card": { "$type": "dimension", "$value": "16px" },
+    "section": { "$type": "dimension", "$value": "24px" }
+  }
+}

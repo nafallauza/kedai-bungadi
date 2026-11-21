@@ -1,0 +1,24 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="24" height="24" fill="#1E1A1A"/>
+<g id="Aset">
+<path d="M-788 -1061C-788 -1062.1 -787.105 -1063 -786 -1063H1010C1011.1 -1063 1012 -1062.1 1012 -1061V1075C1012 1076.1 1011.1 1077 1010 1077H-786C-787.105 1077 -788 1076.1 -788 1075V-1061Z" fill="#F4F4F5"/>
+<path d="M-786 -1063V-1062H1010V-1063V-1064H-786V-1063ZM1012 -1061H1011V1075H1012H1013V-1061H1012ZM1010 1077V1076H-786V1077V1078H1010V1077ZM-788 1075H-787V-1061H-788H-789V1075H-788ZM-786 1077V1076C-786.552 1076 -787 1075.55 -787 1075H-788H-789C-789 1076.66 -787.657 1078 -786 1078V1077ZM1012 1075H1011C1011 1075.55 1010.55 1076 1010 1076V1077V1078C1011.66 1078 1013 1076.66 1013 1075H1012ZM1010 -1063V-1062C1010.55 -1062 1011 -1061.55 1011 -1061H1012H1013C1013 -1062.66 1011.66 -1064 1010 -1064V-1063ZM-786 -1063V-1064C-787.657 -1064 -789 -1062.66 -789 -1061H-788H-787C-787 -1061.55 -786.552 -1062 -786 -1062V-1063Z" fill="black" fill-opacity="0.1"/>
+<g id="Ikon kategori">
+<g id="Snack">
+<rect x="-47.5" y="-18.5" width="119" height="87" rx="11.5" fill="white"/>
+<rect x="-47.5" y="-18.5" width="119" height="87" rx="11.5" stroke="#E4E4E7"/>
+<g id="Ikon/Snack">
+<path id="Vector" d="M11 17H11.01" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_2" d="M11.4961 1.99962C11.8201 1.98362 12.0541 2.29162 12.0251 2.61462C11.9707 3.19036 12.0419 3.77104 12.2336 4.31664C12.4253 4.86224 12.733 5.35979 13.1356 5.77498C13.5381 6.19017 14.0259 6.51314 14.5653 6.72163C15.1047 6.93011 15.683 7.01916 16.2601 6.98262C16.3613 6.97602 16.4627 6.99106 16.5576 7.02675C16.6525 7.06245 16.7387 7.11797 16.8104 7.18961C16.8821 7.26125 16.9378 7.34736 16.9736 7.44221C17.0094 7.53705 17.0246 7.63844 17.0181 7.73962C16.9813 8.31674 17.0701 8.89499 17.2783 9.43449C17.4865 9.97399 17.8093 10.4619 18.2243 10.8647C18.6393 11.2674 19.1367 11.5754 19.6822 11.7673C20.2277 11.9593 20.8083 12.0307 21.3841 11.9766C21.7071 11.9466 22.0141 12.1806 21.9981 12.5036C21.8733 14.9778 20.8345 17.3176 19.0831 19.0696C17.2064 20.9464 14.6611 22.0009 12.0069 22.0009C9.35284 22.001 6.8074 20.9468 4.9306 19.0701C3.05379 17.1934 1.99936 14.6481 1.99927 11.994C1.99917 9.33987 3.05342 6.79443 4.9301 4.91762C6.68167 3.16509 9.02151 2.12524 11.4961 1.99962Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_3" d="M12 12H12.01" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_4" d="M16 16H16.01" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_5" d="M16 3H16.01" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_6" d="M21 4H21.01" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_7" d="M21 8H21.01" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_8" d="M7 14H7.01" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+<path id="Vector_9" d="M9 8H9.01" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#18181B"/>
+</g>
+</g>
+</g>
+</g>
+</svg>
