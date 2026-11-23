@@ -1,364 +1,204 @@
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Check, ChevronLeft, Lock, Plus, QrCode, ShoppingBag, Trash2 } from 'lucide-react';
-import { createOrder } from '../../lib/api';
-import { useMenu, useOnline } from '../../lib/hooks';
+import { AlertCircle, ArrowLeft, ArrowRight, Plus, ShoppingBag } from 'lucide-react';
+import { useMenu } from '../../lib/hooks';
 import { useSession } from '../../lib/session';
-import { site } from '../../data/site';
 import { formatRupiah } from '../../utils/format';
-import { PAYMENT_METHODS, cartLines, countItems, lineName } from '../../utils/order';
-import { EmptyState, Loading, MenuThumb, Spinner, Stepper, btnPrimary, cx, input } from '../../components/ui';
+import { cartLines } from '../../utils/order';
+import {
+  EmptyState,
+  Loading,
+  MenuThumb,
+  Stepper,
+  btnPrimary,
+  btnSecondary,
+  cx,
+  input,
+} from '../../components/ui';
 
 export default function CartPage() {
   const navigate = useNavigate();
-  const online = useOnline();
-  const { table, cart, setQty, clearCart, customerName, setCustomerName, addMyOrder } = useSession();
+  const {
+    table,
+    cart,
+    itemNotes,
+    setQty,
+    setItemNote,
+    customerName,
+    setCustomerName,
+    draftNote,
+    setDraftNote,
+  } = useSession();
   const { data: menu, loading } = useMenu();
-  const [note, setNote] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('qris');
-  const [paymentBank, setPaymentBank] = useState(site.payment.banks[0].id);
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState('');
+  const [nameError, setNameError] = useState('');
+  const nameRef = useRef(null);
 
-  const lines = cartLines(menu ?? [], cart);
+  const lines = useMemo(() => (menu ? cartLines(menu, cart, itemNotes) : []), [menu, cart, itemNotes]);
   const total = lines.reduce((sum, l) => sum + l.price * l.qty, 0);
-  const totalQty = countItems(lines);
-  const hasSoldOut = lines.some((l) => !l.item.available);
+  const count = lines.reduce((sum, l) => sum + l.qty, 0);
 
-  const selectedBankInfo = site.payment.banks.find((b) => b.id === paymentBank) ?? site.payment.banks[0];
-
-  const submit = async (e) => {
+  const proceedToPayment = (e) => {
     e.preventDefault();
-    setSending(true);
-    setError('');
-    try {
-      const order = await createOrder({
-        tableCode: table.code,
-        orderType: 'meja',
-        customerName,
-        note,
-        paymentMethod,
-        paymentBank: paymentMethod === 'bank' ? paymentBank : null,
-        paymentStatus: 'belum_bayar',
-        items: lines.map((l) => ({ menuId: l.menuId, choiceId: l.choiceId, qty: l.qty })),
-      });
-      addMyOrder(order.id);
-      clearCart();
-      navigate(`/pesanan/${order.id}`, { replace: true });
-    } catch (err) {
-      setError(err.message);
-      setSending(false);
+    if (!customerName.trim()) {
+      setNameError('Isi nama pemesan dulu agar staf tahu pesanan milik siapa di meja.');
+      nameRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      nameRef.current?.focus({ preventScroll: true });
+      return;
     }
+    setNameError('');
+    navigate('/pembayaran');
   };
 
+  if (loading) return <Loading text="Memuat keranjang…" />;
+
   return (
-    <div className="min-h-dvh bg-[#fafafa] pb-[100px]">
-      {/* Kepala layar persis sesuai Figma node 17:73 */}
-      <header className="sticky top-0 z-20 flex h-[56px] items-center gap-[4px] border-b border-[#e4e4e7] bg-white px-[8px]">
+    <div className="min-h-dvh pb-40">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-kopi-200/80 bg-kertas/95 px-4 py-3 backdrop-blur-sm">
         <Link
           to="/menu"
-          className="grid size-[40px] place-items-center rounded-[12px] text-[#18181b] hover:bg-[#f4f4f5]"
+          className="grid size-[44px] -ml-2 place-items-center rounded-full text-kopi-700 hover:bg-kopi-100"
           aria-label="Kembali ke menu"
         >
-          <ChevronLeft strokeWidth={1.75} className="size-[20px]" />
+          <ArrowLeft strokeWidth={1.75} className="size-5" />
         </Link>
-        <h1 className="flex-1 text-center text-[16px] font-semibold leading-[24px] text-[#18181b]">Keranjang</h1>
-        <div className="size-[40px] shrink-0" />
+        <div className="text-center">
+          <h1 className="font-display text-[24px] font-bold leading-tight text-kopi-950">Keranjang</h1>
+          <p className="text-xs font-medium text-kopi-600">{table?.name}</p>
+        </div>
+        <span className="w-[44px]" aria-hidden="true" />
       </header>
 
-      {loading && <Loading />}
-      {menu && lines.length === 0 && (
+      {lines.length === 0 ? (
         <EmptyState icon={ShoppingBag} title="Keranjang masih kosong">
+          <p>Pilih wedang, jamu, atau makanan rumahan dulu sebelum lanjut ke pembayaran.</p>
           <Link to="/menu" className={cx(btnPrimary, 'mt-5')}>
-            Lihat menu
+            Lihat daftar menu
           </Link>
         </EmptyState>
-      )}
-
-      {lines.length > 0 && (
-        <form onSubmit={submit} className="flex flex-col gap-[16px] px-[20px] pt-[12px]">
-          {/* Indikator Meja sesuai Figma node 52:1475 */}
-          <div className="flex items-center gap-[6px]">
-            <QrCode strokeWidth={1.5} className="size-[16px] text-[#71717a]" />
-            <span className="text-[14px] font-normal leading-[20px] text-[#71717a]">
-              Pesanan untuk {table.name.split(',')[0]}
-            </span>
+      ) : (
+        <form onSubmit={proceedToPayment} noValidate className="px-4 pt-5">
+          {/* Penanda langkah 1 dari 2 */}
+          <div className="mb-4 flex items-center justify-between rounded-[12px] bg-kertas-tua px-3.5 py-2.5 text-xs font-medium text-kopi-700">
+            <span>Langkah 1 dari 2 · Cek pesanan</span>
+            <span className="font-semibold text-terakota-800">{table?.code}</span>
           </div>
 
-          {/* Daftar pesanan sesuai Figma node 52:1478 */}
-          <div className="flex flex-col rounded-[16px] border border-[#e4e4e7] bg-white px-[16px] pt-[4px] pb-[12px]">
-            <ul>
-              {lines.map((l) => (
-                <li
-                  key={l.key}
-                  className="flex items-center gap-[12px] border-b border-[#e4e4e7] py-[12px]"
-                >
-                  <MenuThumb item={l.item} className="size-[56px] rounded-[12px]" />
-                  <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                    <p className="truncate text-[14px] font-semibold leading-[20px] text-[#18181b]">{l.name}</p>
-                    <p className="text-[12px] font-medium leading-[16px] text-[#71717a]">
-                      {l.choice || 'Tanpa catatan'}
-                    </p>
-                    {l.item.available ? (
-                      <p className="text-[14px] font-semibold leading-[20px] tabular-nums text-[#18181b]">
-                        {formatRupiah(l.price * l.qty)}
-                      </p>
-                    ) : (
-                      <p className="text-[12px] font-medium text-[#b42318]">Sedang habis, hapus dulu</p>
-                    )}
-                  </div>
-                  {l.item.available ? (
-                    <Stepper value={l.qty} onChange={(v) => setQty(l.key, v)} />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setQty(l.key, 0)}
-                      className="grid size-[36px] place-items-center rounded-[10px] text-[#b42318] hover:bg-[#fef3f2]"
-                      aria-label={`Hapus ${lineName(l)}`}
-                    >
-                      <Trash2 strokeWidth={1.5} className="size-4" />
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-            <Link
-              to="/menu"
-              className="flex items-center gap-[6px] pt-[12px] text-[14px] font-semibold leading-[20px] text-[#7a4b2a]"
-            >
-              <Plus strokeWidth={1.75} className="size-[16px]" /> Tambah menu lain
-            </Link>
-          </div>
-
-          {/* Nama pemesan & catatan sesuai Figma node 52:1503 */}
-          <div className="flex flex-col gap-[8px]">
-            <label htmlFor="name" className="text-[14px] font-semibold leading-[20px] text-[#18181b]">
-              Nama pemesan
+          {/* Nama pemesan di atas agar langsung terlihat & tidak tenggelam di bawah daftar item */}
+          <div
+            className={cx(
+              'mb-4 rounded-[16px] border p-4 transition-colors',
+              nameError
+                ? 'border-[#b42318] bg-[#fdf1f0]/75 ring-2 ring-[#b42318]/15'
+                : 'border-kopi-200 bg-kertas',
+            )}
+          >
+            <label htmlFor="customer-name" className="block text-[14px] font-semibold text-kopi-950">
+              Nama pemesan <span className="text-[#b42318]">*</span>
             </label>
+            <p className="mt-0.5 text-xs text-kopi-600">
+              Supaya staf mudah mengantar saat satu meja diisi rombongan.
+            </p>
             <input
-              id="name"
+              ref={nameRef}
+              id="customer-name"
+              type="text"
+              required
               value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              maxLength={40}
-              placeholder="Contoh: Rina"
-              className={input}
+              onChange={(e) => {
+                setCustomerName(e.target.value);
+                if (nameError) setNameError('');
+              }}
+              placeholder="Contoh: Rina atau Rombongan Pak Hadi"
+              aria-invalid={Boolean(nameError)}
+              aria-describedby={nameError ? 'customer-name-error' : undefined}
+              className={cx(
+                input,
+                'mt-2.5',
+                nameError && 'border-[#b42318] bg-white focus:border-[#b42318]',
+              )}
             />
-            <p className="text-[12px] font-normal leading-[16px] text-[#71717a]">
-              Membantu pelayan saat satu meja pesan dari beberapa HP.
-            </p>
+            {nameError && (
+              <p
+                id="customer-name-error"
+                className="mt-2 flex items-start gap-1.5 text-xs font-semibold text-[#b42318]"
+                role="alert"
+              >
+                <AlertCircle strokeWidth={2} className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                <span>{nameError}</span>
+              </p>
+            )}
           </div>
 
-          <div className="flex flex-col gap-[8px]">
-            <label htmlFor="note" className="text-[14px] font-semibold leading-[20px] text-[#18181b]">
-              Catatan tambahan <span className="font-normal text-[#71717a]">(opsional)</span>
+          <ul className="divide-y divide-kopi-200/80 rounded-[16px] border border-kopi-200 bg-kertas px-4">
+            {lines.map((line) => (
+              <li key={line.key} className="py-4">
+                <div className="flex items-start gap-3">
+                  <MenuThumb item={line.item} className="size-[64px]" width={64} height={64} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[15px] font-semibold leading-snug text-kopi-950">{line.name}</p>
+                    {line.choice && <p className="text-xs font-medium text-kopi-600">{line.choice}</p>}
+                    <p className="mt-1 text-[14px] font-semibold tabular-nums text-terakota-700">
+                      {formatRupiah(line.price * line.qty)}
+                    </p>
+                  </div>
+                  <Stepper value={line.qty} onChange={(next) => setQty(line.key, next)} />
+                </div>
+
+                {/* Catatan per item tetap terbawa dari detail hidangan & bisa disunting */}
+                <div className="mt-2.5">
+                  <label htmlFor={`note-${line.key}`} className="sr-only">
+                    Catatan untuk {line.name}
+                  </label>
+                  <input
+                    id={`note-${line.key}`}
+                    type="text"
+                    value={line.note}
+                    onChange={(e) => setItemNote(line.key, e.target.value)}
+                    placeholder="Catatan hidangan ini (mis. gula dipisah)"
+                    className="w-full rounded-[10px] border border-kopi-200/80 bg-kopi-50/70 px-3 min-h-[40px] text-xs text-kopi-900 placeholder:text-kopi-500 focus:border-terakota-700 focus:bg-kertas"
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <Link
+            to="/menu"
+            className={cx(btnSecondary, 'mt-3 w-full border-dashed text-[13px]')}
+          >
+            <Plus strokeWidth={1.75} className="size-4 text-terakota-700" aria-hidden="true" />
+            Tambah menu lain
+          </Link>
+
+          <div className="mt-5">
+            <label htmlFor="order-note" className="block text-[14px] font-semibold text-kopi-900">
+              Catatan untuk dapur / kasir (opsional)
             </label>
             <input
-              id="note"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              maxLength={120}
-              placeholder="Contoh: wedangnya tidak terlalu manis"
-              className={input}
+              id="order-note"
+              type="text"
+              value={draftNote}
+              onChange={(e) => setDraftNote(e.target.value)}
+              placeholder="Contoh: kami rombongan 12 orang, minta diantar bersamaan"
+              className={cx(input, 'mt-2')}
             />
           </div>
 
-          {/* Pilih Metode Pembayaran sesuai Figma node 58:1526 (QRIS, DANA, Bank, Kasir) */}
-          <div className="flex flex-col gap-[12px] pt-[4px]">
-            <div className="flex items-center justify-between">
-              <p className="text-[15px] font-semibold text-[#18181b]">Metode Pembayaran</p>
-              <span className="text-[12px] text-[#71717a]">{totalQty} item · {formatRupiah(total)}</span>
-            </div>
-
-            {/* 1. Opsi Barcode / QRIS (node 58:1541) */}
-            <div
-              onClick={() => setPaymentMethod('qris')}
-              role="radio"
-              aria-checked={paymentMethod === 'qris'}
-              tabIndex={0}
-              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setPaymentMethod('qris')}
-              className={cx(
-                'flex cursor-pointer flex-col gap-[8px] rounded-[12px] p-[14px] transition-all',
-                paymentMethod === 'qris'
-                  ? 'border-[1.5px] border-[#7a4b2a] bg-[#f6eee7]'
-                  : 'border border-[#e4e4e7] bg-white',
-              )}
-            >
-              <div className="flex items-center gap-[12px]">
-                <div className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[8px] border border-[#e4e4e7] bg-white">
-                  <span className="text-[11px] font-bold text-[#cc1a1a]">QRIS</span>
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                  <p className="text-[14px] font-bold text-[#18181b]">QRIS (Semua Bank & E-Wallet)</p>
-                  <p className="text-[11px] text-[#71717a]">BCA, Mandiri, BRI, GoPay, OVO, ShopeePay</p>
-                </div>
-                <div
-                  className={cx(
-                    'flex size-[20px] shrink-0 items-center justify-center rounded-full',
-                    paymentMethod === 'qris' ? 'bg-[#7a4b2a]' : 'border border-[#e4e4e7] bg-white',
-                  )}
-                >
-                  {paymentMethod === 'qris' && <div className="size-[8px] rounded-full bg-white" />}
-                </div>
-              </div>
-              <div className="inline-flex w-fit items-center rounded-[6px] bg-[#15803d] px-[8px] py-[4px]">
-                <span className="text-[11px] font-semibold text-white">✓ Terverifikasi Otomatis Tanpa Antre</span>
-              </div>
-            </div>
-
-            {/* 2. Opsi DANA (node 58:1552) */}
-            <div
-              onClick={() => setPaymentMethod('dana')}
-              role="radio"
-              aria-checked={paymentMethod === 'dana'}
-              tabIndex={0}
-              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setPaymentMethod('dana')}
-              className={cx(
-                'flex cursor-pointer flex-col gap-[8px] rounded-[12px] p-[14px] transition-all',
-                paymentMethod === 'dana'
-                  ? 'border-[1.5px] border-[#7a4b2a] bg-[#f6eee7]'
-                  : 'border border-[#e4e4e7] bg-white',
-              )}
-            >
-              <div className="flex items-center gap-[12px]">
-                <div className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[8px] bg-[#1071e2]">
-                  <span className="text-[11px] font-bold text-white">DANA</span>
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                  <p className="text-[14px] font-bold text-[#18181b]">DANA E-Wallet</p>
-                  <p className="text-[11px] text-[#71717a]">Bayar instan via aplikasi atau nomor HP DANA</p>
-                </div>
-                <div
-                  className={cx(
-                    'flex size-[20px] shrink-0 items-center justify-center rounded-full',
-                    paymentMethod === 'dana' ? 'bg-[#7a4b2a]' : 'border border-[#e4e4e7] bg-white',
-                  )}
-                >
-                  {paymentMethod === 'dana' && <div className="size-[8px] rounded-full bg-white" />}
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Opsi Transfer Bank */}
-            <div
-              onClick={() => setPaymentMethod('bank')}
-              role="radio"
-              aria-checked={paymentMethod === 'bank'}
-              tabIndex={0}
-              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setPaymentMethod('bank')}
-              className={cx(
-                'flex cursor-pointer flex-col gap-[8px] rounded-[12px] p-[14px] transition-all',
-                paymentMethod === 'bank'
-                  ? 'border-[1.5px] border-[#7a4b2a] bg-[#f6eee7]'
-                  : 'border border-[#e4e4e7] bg-white',
-              )}
-            >
-              <div className="flex items-center gap-[12px]">
-                <div className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[8px] bg-[#7a4b2a]">
-                  <span className="text-[11px] font-bold text-white">BANK</span>
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                  <p className="text-[14px] font-bold text-[#18181b]">Transfer Bank</p>
-                  <p className="text-[11px] text-[#71717a]">Transfer ke rekening BCA, BRI, Mandiri, atau BPD DIY</p>
-                </div>
-                <div
-                  className={cx(
-                    'flex size-[20px] shrink-0 items-center justify-center rounded-full',
-                    paymentMethod === 'bank' ? 'bg-[#7a4b2a]' : 'border border-[#e4e4e7] bg-white',
-                  )}
-                >
-                  {paymentMethod === 'bank' && <div className="size-[8px] rounded-full bg-white" />}
-                </div>
-              </div>
-
-              {paymentMethod === 'bank' && (
-                <div
-                  className="mt-[4px] flex flex-col gap-[8px] rounded-[10px] border border-[#e4e4e7] bg-white p-[10px]"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="grid grid-cols-4 gap-[6px]">
-                    {site.payment.banks.map((b) => (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => setPaymentBank(b.id)}
-                        className={cx(
-                          'flex h-[32px] items-center justify-center gap-1 rounded-[8px] border text-[11px] font-semibold transition-colors',
-                          paymentBank === b.id
-                            ? 'border-[#7a4b2a] bg-[#7a4b2a] text-white'
-                            : 'border-[#e4e4e7] bg-[#fafafa] text-[#18181b]',
-                        )}
-                      >
-                        {paymentBank === b.id && <Check strokeWidth={2} className="size-3" />}
-                        {b.id}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between text-[12px]">
-                    <span className="text-[#71717a]">{selectedBankInfo.name}</span>
-                    <span className="font-mono font-semibold text-[#18181b]">{selectedBankInfo.account}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 4. Opsi Bayar di Kasir (node 58:1559) */}
-            <div
-              onClick={() => setPaymentMethod('kasir')}
-              role="radio"
-              aria-checked={paymentMethod === 'kasir'}
-              tabIndex={0}
-              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setPaymentMethod('kasir')}
-              className={cx(
-                'flex cursor-pointer items-center gap-[12px] rounded-[12px] p-[14px] transition-all',
-                paymentMethod === 'kasir'
-                  ? 'border-[1.5px] border-[#7a4b2a] bg-[#f6eee7]'
-                  : 'border border-[#e4e4e7] bg-white',
-              )}
-            >
-              <div className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[8px] border border-[#e4e4e7] bg-[#f4f4f5]">
-                <span className="text-[10px] font-bold text-[#18181b]">KASIR</span>
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                <p className="text-[14px] font-bold text-[#18181b]">Bayar di Kasir (Tunai / Debit)</p>
-                <p className="text-[11px] text-[#71717a]">Bayar langsung ke kasir sebelum pulang</p>
-              </div>
-              <div
-                className={cx(
-                  'flex size-[20px] shrink-0 items-center justify-center rounded-full',
-                  paymentMethod === 'kasir' ? 'bg-[#7a4b2a]' : 'border border-[#e4e4e7] bg-white',
-                )}
-              >
-                {paymentMethod === 'kasir' && <div className="size-[8px] rounded-full bg-white" />}
-              </div>
-            </div>
-
-            {/* Info Box sesuai Figma node 58:1566 */}
-            <div className="flex items-center gap-[8px] rounded-[10px] border border-[#e4e4e7] bg-white px-[12px] py-[10px]">
-              <Lock strokeWidth={1.5} className="size-[16px] shrink-0 text-[#7a4b2a]" />
-              <p className="text-[12px] leading-[16px] text-[#71717a]">
-                Pembayaran Anda terenkripsi & tercatat otomatis ke sistem dapur.
+          {/* Bilah bawah lanjut ke halaman Pilih Pembayaran */}
+          <div className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] border-t border-kopi-200 bg-kertas/95 px-4 py-3.5 backdrop-blur-sm">
+            {nameError && (
+              <p className="mb-2 flex items-center gap-1.5 rounded-[10px] bg-[#fdf1f0] px-3 py-1.5 text-xs font-semibold text-[#b42318]">
+                <AlertCircle strokeWidth={2} className="size-3.5 shrink-0" aria-hidden="true" />
+                Isi nama pemesan dulu untuk lanjut.
               </p>
+            )}
+            <div className="mb-2.5 flex items-baseline justify-between">
+              <span className="text-xs font-medium text-kopi-600">Total ({count} item)</span>
+              <span className="text-[18px] font-bold tabular-nums text-kopi-950">{formatRupiah(total)}</span>
             </div>
-          </div>
-
-          {error && (
-            <p className="rounded-[12px] bg-[#fef3f2] p-3 text-[13px] text-[#b42318]" role="alert">
-              {error}
-            </p>
-          )}
-          {!online && <p className="text-center text-[13px] text-[#71717a]">Menunggu koneksi kembali…</p>}
-
-          {/* Bar Bawah sesuai Figma node 58:1568 */}
-          <div className="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-md border-t border-[#e4e4e7] bg-white px-[20px] py-[14px]">
-            <button
-              type="submit"
-              disabled={sending || !online || hasSoldOut}
-              className="flex h-[48px] w-full items-center justify-center gap-2 rounded-[12px] bg-[#7a4b2a] px-[20px] text-[16px] font-semibold leading-[24px] text-white transition-colors hover:bg-[#5e3920] disabled:opacity-50"
-            >
-              {sending && <Spinner className="size-4" />}
-              {sending
-                ? 'Mengirim pesanan…'
-                : `Bayar dengan ${PAYMENT_METHODS[paymentMethod]?.shortLabel} · ${formatRupiah(total)}`}
+            <button type="submit" className={cx(btnPrimary, 'min-h-[52px] w-full')}>
+              Pilih pembayaran
+              <ArrowRight strokeWidth={1.75} className="size-4" aria-hidden="true" />
             </button>
           </div>
         </form>

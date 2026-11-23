@@ -1,26 +1,28 @@
-// Menu terkurasi sesuai desain Figma BUNGADI – Desain UI/UX (Section Aset & Halaman Menu 18:30)
+// Menu Wedang Uwuh Bu Ngadi (harga 4 menu baru masih perkiraan sementara, bisa diubah di /admin/menu)
 
 export const categories = [
-  { id: 'wedang', name: 'Wedang & Rempah', shortName: 'Wedang', icon: '/images/icons/cat-wedang.svg', image: '/images/categories/wedang.png' },
-  { id: 'kopi', name: 'Kopi', shortName: 'Kopi', icon: '/images/icons/cat-kopi.svg', image: '/images/categories/kopi.png' },
-  { id: 'jamu', name: 'Jamu & Fermentasi', shortName: 'Jamu', icon: '/images/icons/cat-jamu.svg', image: '/images/categories/jamu.png' },
-  { id: 'teh', name: 'Teh, Madu & Coklat', shortName: 'Teh', icon: '/images/icons/cat-teh.svg', image: '/images/categories/teh.png' },
-  { id: 'makanan', name: 'Makanan', shortName: 'Makanan', icon: '/images/icons/cat-makanan.svg', image: '/images/categories/makanan.png' },
-  { id: 'snack', name: 'Snack', shortName: 'Snack', icon: '/images/icons/cat-snack.svg', image: '/images/categories/snack.png' },
-  { id: 'tambahan', name: 'Tambahan', shortName: 'Tambahan', icon: '/images/icons/cat-tambahan.svg', image: '/images/categories/tambahan.png' },
+  { id: 'wedang', name: 'Wedang & Rempah', shortName: 'Wedang', station: 'minuman', icon: '/images/icons/cat-wedang.svg', image: '/images/menu/wedang-uwuh.webp' },
+  { id: 'kopi', name: 'Kopi', shortName: 'Kopi', station: 'minuman', icon: '/images/icons/cat-kopi.svg', image: '/images/menu/kopi-tubruk.webp' },
+  { id: 'jamu', name: 'Jamu & Fermentasi', shortName: 'Jamu', station: 'minuman', icon: '/images/icons/cat-jamu.svg', image: '/images/menu/kunir-asem.webp' },
+  { id: 'teh', name: 'Teh & Madu', shortName: 'Teh', station: 'minuman', icon: '/images/icons/cat-teh.svg', image: '/images/menu/madu-jeruk.webp' },
+  { id: 'makanan', name: 'Makanan', shortName: 'Makanan', station: 'makanan', icon: '/images/icons/cat-makanan.svg', image: '/images/menu/nasi-pecel.webp' },
+  { id: 'snack', name: 'Camilan', shortName: 'Camilan', station: 'makanan', icon: '/images/icons/cat-snack.svg', image: '/images/menu/mendoan.webp' },
+  { id: 'tambahan', name: 'Tambahan', shortName: 'Tambahan', station: 'makanan', icon: '/images/icons/cat-tambahan.svg', image: '/images/menu/nasi-telur.webp' },
 ];
 
 export const categoryDefaultImage = {
-  wedang: '/images/menu/wedang-uwuh.png',
-  kopi: '/images/menu/kopi-tubruk.png',
-  jamu: '/images/menu/kunir-asem.png',
-  teh: '/images/menu/es-teh.png',
-  makanan: '/images/menu/nasi-pecel.png',
-  snack: '/images/menu/mendoan.png',
-  tambahan: '/images/menu/nasi-telur.png',
+  wedang: '/images/menu/wedang-uwuh.webp',
+  kopi: '/images/menu/kopi-tubruk.webp',
+  jamu: '/images/menu/kunir-asem.webp',
+  teh: '/images/menu/madu-jeruk.webp',
+  makanan: '/images/menu/nasi-pecel.webp',
+  snack: '/images/menu/mendoan.webp',
+  tambahan: '/images/menu/nasi-telur.webp',
 };
 
-const panasEs = {
+export const DRINK_CATEGORIES = new Set(['wedang', 'kopi', 'jamu', 'teh']);
+
+export const panasEs = {
   label: 'Penyajian',
   choices: [
     { id: 'panas', name: 'Panas' },
@@ -52,10 +54,10 @@ export const initialMenu = [
     'Wedang Uwuh',
     'wedang',
     8000,
-    'Gula batu cair. Bisa panas atau es.',
+    'Rempah kering dengan gula batu cair. Bisa panas atau es.',
     {
-      longDescription: 'Rempah kering seperti secang, jahe, cengkeh, dan kayu manis yang diseduh air panas, dengan gula batu cair.',
-      image: '/images/menu/wedang-uwuh.png',
+      longDescription: 'Secang, jahe bakar, cengkeh, dan kayu manis diseduh air panas bersama gula batu cair.',
+      image: '/images/menu/wedang-uwuh-gelas.webp',
       option: panasEs,
       tags: ['khas', 'panas'],
     },
@@ -65,11 +67,12 @@ export const initialMenu = [
     'Wedang Uwuh Bu Ngadi',
     'wedang',
     10000,
-    'Wedang uwuh dengan gula palem. Bisa panas atau es.',
+    'Racikan khas dengan gula palem. Bisa panas atau es.',
     {
-      image: '/images/menu/wedang-uwuh.png',
+      longDescription: 'Wedang uwuh andalan Bu Ngadi disajikan dalam karaf kecil dengan aroma rempah lebih pekat dan gula palem.',
+      image: '/images/menu/wedang-uwuh.webp',
       option: panasEs,
-      tags: ['khas', 'laris'],
+      tags: ['khas', 'laris', 'panas'],
     },
   ),
   item(
@@ -77,9 +80,9 @@ export const initialMenu = [
     'Jahe Susu',
     'wedang',
     10000,
-    'Jahe dengan susu kental manis. Bisa panas atau es.',
+    'Jahe geprek dengan susu kental manis. Bisa panas atau es.',
     {
-      image: '/images/menu/jahe-susu.png',
+      image: '/images/menu/jahe-susu.webp',
       option: panasEs,
       tags: ['panas'],
     },
@@ -91,27 +94,76 @@ export const initialMenu = [
     'Kopi Bu Ngadi',
     'kopi',
     12000,
-    'Kopi ireng tubruk khas Bu Ngadi.',
+    'Kopi ireng tubruk sangrai rumahan khas Bu Ngadi.',
     {
-      image: '/images/menu/kopi-tubruk.png',
-      tags: ['panas', 'khas'],
+      image: '/images/menu/kopi-tubruk.webp',
+      tags: ['panas', 'khas', 'kopi'],
     },
   ),
 
   // Jamu & Fermentasi
   item(
+    'kombucha',
+    'Kombucha',
+    'jamu',
+    15000,
+    'Teh fermentasi dingin dengan rasa segar asam-manis alami.',
+    {
+      longDescription: 'Fermentasi teh racikan kedai disajikan dingin di atas es batu, ringan dan menyegarkan setelah perjalanan naik Patuk.',
+      image: '/images/menu/kombucha.webp',
+      tags: ['es', 'khas'],
+    },
+  ),
+  item(
     'kunir-asem',
     'Kunir Asem',
     'jamu',
     12000,
-    'Kunyit segar & asam jawa. Disajikan dingin.',
+    'Kunyit segar dan asam jawa. Disajikan dingin.',
     {
-      image: '/images/menu/kunir-asem.png',
+      image: '/images/menu/kunir-asem.webp',
       tags: ['es', 'khas'],
     },
   ),
+  item(
+    'beras-kencur',
+    'Beras Kencur',
+    'jamu',
+    10000,
+    'Jamu beras kencur rumahan yang lembut dan menghangatkan.',
+    {
+      image: '/images/menu/beras-kencur.webp',
+      option: panasEs,
+      tags: ['khas', 'panas'],
+    },
+  ),
+  item(
+    'gula-asem',
+    'Gula Asem',
+    'jamu',
+    10000,
+    'Asam jawa dan gula aren asli yang segar di tenggorokan.',
+    {
+      image: '/images/menu/gula-asem.webp',
+      option: panasEs,
+      tags: ['es'],
+    },
+  ),
 
-  // Teh, Madu & Coklat
+  // Teh & Madu
+  item(
+    'madu-jeruk',
+    'Madu Jeruk',
+    'teh',
+    12000,
+    'Madu murni dengan perasan jeruk nipis segar. Bisa panas atau es.',
+    {
+      longDescription: 'Seduhan madu murni dipadukan irisan jeruk nipis segar, cocok dinikmati hangat saat sore berkabut di Patuk.',
+      image: '/images/menu/madu-jeruk.webp',
+      option: panasEs,
+      tags: ['panas', 'khas'],
+    },
+  ),
   item(
     'teh',
     'Es Teh',
@@ -119,7 +171,7 @@ export const initialMenu = [
     5000,
     'Teh seduh gula batu. Bisa es atau panas.',
     {
-      image: '/images/menu/es-teh.png',
+      image: '/images/menu/es-teh.webp',
       option: panasEs,
       tags: ['es'],
     },
@@ -131,9 +183,9 @@ export const initialMenu = [
     'Nasi Pecel',
     'makanan',
     15000,
-    'Nasi pecel sayur & telur dengan bumbu kacang.',
+    'Sayur rebus, telur, rempeyek kacang, dan bumbu pecel rumahan.',
     {
-      image: '/images/menu/nasi-pecel.png',
+      image: '/images/menu/nasi-pecel.webp',
       tags: ['khas', 'laris'],
     },
   ),
@@ -142,22 +194,22 @@ export const initialMenu = [
     'Soto Ayam',
     'makanan',
     15000,
-    'Soto kuah hangat dengan suwiran ayam kampung.',
+    'Soto kuah bening hangat dengan suwiran ayam kampung.',
     {
-      image: '/images/menu/soto-ayam.png',
+      image: '/images/menu/soto-ayam.webp',
       tags: ['berkuah'],
     },
   ),
 
-  // Snack
+  // Camilan
   item(
     'mendoan',
     'Mendoan',
     'snack',
     8000,
-    'Tempe mendoan hangat, isi 4.',
+    'Tempe mendoan goreng hangat isi 4, dengan sambal kecap.',
     {
-      image: '/images/menu/mendoan.png',
+      image: '/images/menu/mendoan.webp',
       tags: ['khas', 'laris'],
     },
   ),
@@ -168,9 +220,9 @@ export const initialMenu = [
     'Nasi dan Telur',
     'tambahan',
     10000,
-    'Nasi putih hangat dengan telur dadar atau ceplok.',
+    'Nasi putih hangat dengan telur dadar atau ceplok dan sambal.',
     {
-      image: '/images/menu/nasi-telur.png',
+      image: '/images/menu/nasi-telur.webp',
       option: pilih('Jenis', 'Dadar', 'Ceplok'),
     },
   ),

@@ -34,20 +34,19 @@ const HOUR_WEIGHTS = [
 // Bobot contoh: wedang uwuh paling laku; nasi pecel & kunir asem disebut favorit di ulasan Google Maps
 const ITEM_WEIGHTS = {
   'wedang-uwuh': 12,
-  'wedang-uwuh-bungadi': 9,
-  'wedang-uwuh-temanten': 5,
+  'wedang-uwuh-bungadi': 11,
+  'jahe-susu': 6,
   'kunir-asem': 6,
+  'kombucha': 5,
+  'madu-jeruk': 6,
+  'beras-kencur': 4,
+  'gula-asem': 4,
   'kopi-bungadi': 6,
   teh: 5,
-  jahe: 4,
   mendoan: 8,
-  pisang: 5,
-  'tahu-walik': 4,
   'nasi-pecel': 7,
-  'nasi-telor-bungadi': 6,
+  'nasi-telor-bungadi': 5,
   'soto-ayam': 5,
-  indomie: 6,
-  'nasi-goreng': 4,
 };
 
 export function generateSalesHistory(days = 14, now = new Date()) {

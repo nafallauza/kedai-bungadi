@@ -1,54 +1,51 @@
 @import "tailwindcss";
 
 /*
-  Panduan Desain Figma (Section 12:34 - Warna, Huruf, Jarak, Sudut & Bayangan):
-  - Aksen Utama (Cokelat kopi): #7A4B2A
-  - Aksen Utama Tua (Cokelat tua): #5E3920
-  - Aksen Utama Muda (Cokelat susu): #F6EEE7
-  - Netral Putih: #FFFFFF
-  - Netral Latar: #FAFAFA
-  - Netral Abu Muda: #F4F4F5
-  - Netral Garis: #E4E4E7
-  - Netral Abu: #71717A
-  - Netral Teks: #18181B
+  Sistem warna & tipografi Wedang Uwuh Bu Ngadi (selaras design-tokens.json):
+  - Kanvas hangat kertas menu: #f7f3ee / #fffdf9 / #f4ecdc
+  - Tinta kayu & kopi sangrai: #221b15 / #5f4a37 / #6b5644 (kontras >= 5.5:1)
+  - Aksen terakota buku menu:  #7f3b25 / #663123
+  - Aksen emas cangkir (hanya detail kecil di latar gelap): #e8c98a
+  - Display: Cormorant Garamond | UI & angka: Plus Jakarta Sans
 */
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
 
-  --color-kopi-50: #fafafa;
-  --color-kopi-100: #f4f4f5;
-  --color-kopi-200: #e4e4e7;
-  --color-kopi-300: #d4d4d8;
-  --color-kopi-400: #a1a1aa;
-  --color-kopi-500: #71717a;
-  --color-kopi-600: #52525b;
-  --color-kopi-700: #3f3f46;
-  --color-kopi-800: #27272a;
-  --color-kopi-900: #18181b;
-  --color-kopi-950: #18181b;
+  --color-kopi-50: #f7f3ee;
+  --color-kopi-100: #ece3d6;
+  --color-kopi-200: #dfd2be;
+  --color-kopi-300: #c8b498;
+  --color-kopi-400: #755e4a;
+  --color-kopi-500: #6b5644;
+  --color-kopi-600: #5f4a37;
+  --color-kopi-700: #47382a;
+  --color-kopi-800: #31271e;
+  --color-kopi-900: #221b15;
+  --color-kopi-950: #15110d;
 
-  --color-terakota-50: #f6eee7;
-  --color-terakota-100: #ebd9cb;
-  --color-terakota-200: #d9b89f;
-  --color-terakota-300: #c0916e;
-  --color-terakota-400: #a66f48;
-  --color-terakota-500: #8f5a35;
-  --color-terakota-600: #7a4b2a;
-  --color-terakota-700: #7a4b2a;
-  --color-terakota-800: #5e3920;
-  --color-terakota-900: #4d2f1a;
-  --color-terakota-950: #2e1b0f;
+  --color-terakota-50: #fbf3ee;
+  --color-terakota-100: #f5e2d6;
+  --color-terakota-200: #eac2ab;
+  --color-terakota-300: #dc9a79;
+  --color-terakota-400: #c46b44;
+  --color-terakota-500: #a85130;
+  --color-terakota-600: #934427;
+  --color-terakota-700: #7f3b25;
+  --color-terakota-800: #663123;
+  --color-terakota-900: #542a1f;
+  --color-terakota-950: #2e140e;
 
-  --color-kertas: #ffffff;
-  --color-kertas-tua: #f6eee7;
+  --color-kertas: #fffdf9;
+  --color-kertas-tua: #f4ecdc;
+  --color-emas: #e8c98a;
   --color-lampu: #b45309;
 
-  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.04);
-  --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.08);
+  --shadow-soft: 0 1px 2px rgb(34 27 21 / 0.05), 0 6px 18px rgb(34 27 21 / 0.05);
+  --shadow-lift: 0 2px 6px rgb(34 27 21 / 0.06), 0 14px 32px rgb(34 27 21 / 0.1);
 
-  --animate-slide-up: slide-up 0.2s ease-out;
-  --animate-fade-in: fade-in 0.16s ease-out;
+  --animate-slide-up: slide-up 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-in: fade-in 0.18s ease-out;
   --animate-ping-once: ping-once 0.8s ease-out;
 
   @keyframes slide-up {
@@ -60,24 +57,87 @@
     to { opacity: 1; }
   }
   @keyframes ping-once {
-    0% { box-shadow: 0 0 0 0 rgb(122 75 42 / 0.3); }
-    100% { box-shadow: 0 0 0 10px rgb(122 75 42 / 0); }
+    0% { box-shadow: 0 0 0 0 rgb(127 59 37 / 0.32); }
+    100% { box-shadow: 0 0 0 10px rgb(127 59 37 / 0); }
   }
 }
 
 @utility paper {
-  background-color: #ffffff;
+  background-color: var(--color-kertas);
+}
+
+/* Mode operasional Kasir & Admin: netral sejuk & bersih agar mata staf tidak lelah menatap layar berjam-jam */
+.staff-ui {
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-kopi-50: #f4f6f8;
+  --color-kopi-100: #e9eef3;
+  --color-kopi-200: #d8e0e8;
+  --color-kopi-300: #b9c5d2;
+  --color-kopi-400: #5b697a;
+  --color-kopi-500: #526071;
+  --color-kopi-600: #425061;
+  --color-kopi-700: #334155;
+  --color-kopi-800: #1e293b;
+  --color-kopi-900: #0f172a;
+  --color-kopi-950: #0f172a;
+
+  --color-terakota-50: #eef7f5;
+  --color-terakota-100: #d6ede8;
+  --color-terakota-200: #b0dcd3;
+  --color-terakota-300: #7cc4b6;
+  --color-terakota-400: #3d9e8d;
+  --color-terakota-500: #1f7f6f;
+  --color-terakota-600: #166a5c;
+  --color-terakota-700: #0f5c4d;
+  --color-terakota-800: #0b473b;
+  --color-terakota-900: #08362d;
+
+  --color-kertas: #ffffff;
+  --color-kertas-tua: #eef2f6;
+  --shadow-soft: 0 1px 2px rgb(15 23 42 / 0.04), 0 4px 12px rgb(15 23 42 / 0.04);
+  --shadow-lift: 0 2px 6px rgb(15 23 42 / 0.06), 0 12px 28px rgb(15 23 42 / 0.1);
+  color: var(--color-kopi-900);
+  caret-color: var(--color-terakota-700);
 }
 
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+    color-scheme: light;
+    scrollbar-color: var(--color-kopi-300) var(--color-kopi-50);
   }
   body {
-    @apply bg-[#fafafa] font-sans text-[#18181b] antialiased;
+    @apply bg-kopi-50 font-sans text-kopi-900 antialiased;
+    caret-color: var(--color-terakota-700);
+  }
+  ::selection {
+    background-color: var(--color-terakota-100);
+    color: var(--color-terakota-950);
+  }
+  h1, h2 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-terakota-700);
+    outline-offset: 2px;
+  }
+  a {
+    text-underline-offset: 3px;
   }
   button:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

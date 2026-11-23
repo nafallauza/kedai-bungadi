@@ -6,10 +6,12 @@ import { SessionProvider } from './lib/session';
 import { CustomerLayout, RequireTable, StaffLayout } from './components/layouts';
 import LandingPage from './pages/LandingPage';
 import DemoPage from './pages/DemoPage';
+import StaffLoginPage from './pages/StaffLoginPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { ScanPage, TableEntryPage } from './pages/customer/TablePages';
 import MenuPage from './pages/customer/MenuPage';
 import CartPage from './pages/customer/CartPage';
+import PaymentPage from './pages/customer/PaymentPage';
 import { MyOrdersPage, OrderStatusPage } from './pages/customer/OrderPages';
 import CashierPage from './pages/staff/CashierPage';
 import SummaryPage from './pages/admin/SummaryPage';
@@ -23,20 +25,22 @@ createRoot(document.getElementById('root')).render(
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/demo" element={<DemoPage />} />
+          <Route path="/masuk" element={<StaffLoginPage />} />
 
-          {/* Pelanggan (dibuka dari QR code di meja) */}
+          {/* Pelanggan: /menu terbuka untuk umum; keranjang & pembayaran wajib scan QR meja */}
           <Route element={<CustomerLayout />}>
             <Route path="/pesan" element={<ScanPage />} />
             <Route path="/meja/:code" element={<TableEntryPage />} />
+            <Route path="/menu" element={<MenuPage />} />
             <Route element={<RequireTable />}>
-              <Route path="/menu" element={<MenuPage />} />
               <Route path="/keranjang" element={<CartPage />} />
+              <Route path="/pembayaran" element={<PaymentPage />} />
             </Route>
             <Route path="/pesanan" element={<MyOrdersPage />} />
             <Route path="/pesanan/:id" element={<OrderStatusPage />} />
           </Route>
 
-          {/* Staf kedai: kasir/dapur dan admin (login menyusul dari backend) */}
+          {/* Staf kedai: kasir/dapur & admin (dilindungi gerbang masuk staf) */}
           <Route element={<StaffLayout />}>
             <Route path="/kasir" element={<CashierPage />} />
             <Route path="/admin" element={<SummaryPage />} />

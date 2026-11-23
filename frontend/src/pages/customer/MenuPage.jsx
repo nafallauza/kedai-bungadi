@@ -1,404 +1,541 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight, Flame, MessageCircle, Plus, Receipt, Search, ShoppingBag, Snowflake, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import {
+  Bean,
+  ChevronRight,
+  ClipboardList,
+  Coffee,
+  Cookie,
+  CookingPot,
+  CupSoda,
+  Leaf,
+  MessageCircle,
+  Plus,
+  QrCode,
+  Search,
+  ShoppingBag,
+  Soup,
+  Utensils,
+  X,
+} from 'lucide-react';
 import { categories } from '../../data/menu';
-import { useMenu } from '../../lib/hooks';
+import { useBestSellers, useMenu } from '../../lib/hooks';
 import { useSession } from '../../lib/session';
 import { formatRupiah } from '../../utils/format';
 import { cartKey, cartLines, priceRange } from '../../utils/order';
+import {
+  EmptyState,
+  Loading,
+  MenuThumb,
+  Sheet,
+  Stepper,
+  btnPrimary,
+  btnSecondary,
+  cx,
+  input,
+} from '../../components/ui';
 import AssistantSheet from '../../components/AssistantSheet';
-import { EmptyState, Loading, MenuThumb, Stepper, cx, input } from '../../components/ui';
 
-const priceText = (item) => {
-  const [min, max] = priceRange(item);
-  return min === max ? formatRupiah(min) : `${formatRupiah(min)} – ${formatRupiah(max).replace('Rp', '').trim()}`;
+const CAT_ICONS = {
+  semua: Utensils,
+  wedang: Coffee,
+  kopi: Bean,
+  jamu: Leaf,
+  teh: CupSoda,
+  makanan: CookingPot,
+  snack: Cookie,
+  tambahan: Soup,
 };
 
-// Lembar Detail Hidangan persis sesuai Figma node 19:95
-function DishDetailSheet({ item, onClose }) {
+function DishDetailSheet({ item, onClose, canOrder }) {
   const { addItems } = useSession();
   const [choiceId, setChoiceId] = useState(item?.option?.choices[0]?.id ?? null);
-  const [itemNote, setItemNote] = useState('');
   const [qty, setQty] = useState(1);
+  const [itemNote, setItemNote] = useState('');
+
+  useEffect(() => {
+    if (item) {
+      setChoiceId(item.option?.choices[0]?.id ?? null);
+      setQty(1);
+      setItemNote('');
+    }
+  }, [item]);
 
   if (!item) return null;
-  const choice = item.option?.choices.find((c) => c.id === choiceId);
-  const price = choice?.price ?? item.price;
 
-  const add = () => {
-    addItems([{ key: cartKey(item.id, choiceId), qty }]);
+  const activeChoice = item.option?.choices.find((c) => c.id === choiceId);
+  const unitPrice = activeChoice?.price ?? item.price;
+
+  const handleAdd = () => {
+    addItems([
+      {
+        key: cartKey(item.id, choiceId),
+        qty,
+        note: itemNote.trim(),
+      },
+    ]);
     onClose();
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label={item.name}
-    >
-      <div className="absolute inset-0 animate-fade-in bg-black/40" onClick={onClose} />
-      <div className="relative flex w-full max-w-md animate-slide-up flex-col gap-[16px] rounded-t-[24px] bg-white px-[20px] pt-[10px] pb-[34px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.04),0px_8px_24px_0px_rgba(0,0,0,0.08)] sm:rounded-[24px]">
-        {/* Pegangan (node 19:149) */}
-        <div className="flex w-full justify-center">
-          <div className="h-[4px] w-[40px] rounded-[2px] bg-[#e4e4e7]" />
-        </div>
-
-        {/* Foto 200px (node 19:151) */}
-        <MenuThumb item={item} className="h-[200px] w-full rounded-[16px]" />
-
-        {/* Nama dan harga (node 19:152) */}
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-[24px] font-semibold leading-[32px] tracking-[-0.24px] text-[#18181b]">{item.name}</h2>
-          <span className="text-[20px] font-semibold leading-[28px] tracking-[-0.1px] text-[#18181b]">
-            {formatRupiah(price)}
-          </span>
-        </div>
-
-        {/* Deskripsi (node 19:155) */}
-        <p className="text-[14px] leading-[20px] text-[#71717a]">
-          {item.longDescription || item.description || 'Disiapkan segar dari dapur Wedang Uwuh Bu Ngadi.'}
-        </p>
-
-        {/* Penyajian / Opsi (node 19:156) */}
-        {item.option && (
-          <div className="flex flex-col gap-[10px]">
-            <p className="text-[14px] font-semibold leading-[20px] text-[#18181b]">{item.option.label}</p>
-            <div className="flex flex-wrap gap-[8px]">
-              {item.option.choices.map((c) => {
-                const active = choiceId === c.id;
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setChoiceId(c.id)}
-                    className={cx(
-                      'inline-flex h-[36px] items-center justify-center gap-[6px] rounded-full border px-[14px] text-[14px] leading-[20px] transition-colors',
-                      active
-                        ? 'border-[#7a4b2a] bg-[#f6eee7] font-semibold text-[#5e3920]'
-                        : 'border-[#e4e4e7] bg-white font-normal text-[#18181b] hover:bg-[#f4f4f5]',
-                    )}
-                  >
-                    {c.id === 'panas' && <Flame strokeWidth={1.75} className="size-[16px]" />}
-                    {c.id === 'es' && <Snowflake strokeWidth={1.75} className="size-[16px]" />}
-                    {c.name}
-                  </button>
-                );
-              })}
-            </div>
+    <Sheet
+      open={Boolean(item)}
+      onClose={onClose}
+      title={item.name}
+      subtitle={formatRupiah(unitPrice)}
+      footer={
+        canOrder ? (
+          <div className="flex items-center gap-3">
+            <Stepper value={qty} onChange={(next) => setQty(Math.max(1, next))} />
+            <button type="button" onClick={handleAdd} className={cx(btnPrimary, 'flex-1')}>
+              Tambah · {formatRupiah(unitPrice * qty)}
+            </button>
           </div>
-        )}
+        ) : (
+          <Link to="/pesan" onClick={onClose} className={cx(btnPrimary, 'w-full')}>
+            <QrCode strokeWidth={1.75} className="size-4" aria-hidden="true" />
+            Scan QR / Pilih meja untuk memesan
+          </Link>
+        )
+      }
+    >
+      <img
+        src={item.image}
+        alt={item.name}
+        width={640}
+        height={420}
+        className="h-[220px] w-full rounded-[16px] bg-kopi-100 object-cover"
+      />
 
-        {/* Kolom isian Catatan (node 19:169) */}
-        <div className="flex flex-col gap-[8px]">
-          <label className="text-[14px] font-semibold leading-[20px] text-[#18181b]">Catatan</label>
+      <p className="mt-4 text-[14px] leading-relaxed text-kopi-700">
+        {item.longDescription || item.description}
+      </p>
+
+      {item.option && (
+        <div className="mt-5">
+          <p className="text-[14px] font-semibold text-kopi-900">{item.option.label}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {item.option.choices.map((c) => {
+              const active = choiceId === c.id;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setChoiceId(c.id)}
+                  className={cx(
+                    'min-h-[44px] rounded-[12px] border px-4 text-[14px] font-semibold transition-colors',
+                    active
+                      ? 'border-terakota-700 bg-terakota-50 text-terakota-800'
+                      : 'border-kopi-200 bg-kertas text-kopi-800 hover:bg-kopi-100',
+                  )}
+                >
+                  {c.name}
+                  {c.price && c.price !== item.price ? ` · ${formatRupiah(c.price)}` : ''}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {canOrder && (
+        <div className="mt-5">
+          <label htmlFor="dish-note" className="block text-[14px] font-semibold text-kopi-900">
+            Catatan dapur (opsional)
+          </label>
           <input
+            id="dish-note"
             type="text"
             value={itemNote}
             onChange={(e) => setItemNote(e.target.value)}
-            placeholder="Contoh: tidak terlalu manis"
-            className={input}
+            placeholder="Contoh: gula dipisah, tidak terlalu manis, tanpa es"
+            className={cx(input, 'mt-1.5')}
           />
         </div>
-
-        {/* Baris bawah: Penghitung jumlah + Tombol Tambah (node 19:170) */}
-        <div className="flex items-center gap-[12px] pt-[4px]">
-          <Stepper value={qty} onChange={(v) => setQty(Math.max(1, v))} />
-          <button
-            type="button"
-            onClick={add}
-            className="flex h-[48px] flex-1 items-center justify-center rounded-[12px] bg-[#7a4b2a] px-[20px] text-[16px] font-semibold leading-[24px] text-white transition-colors hover:bg-[#5e3920]"
-          >
-            Tambah, {formatRupiah(price * qty)}
-          </button>
-        </div>
-      </div>
-    </div>
+      )}
+    </Sheet>
   );
 }
 
-// Tombol Tambah / Penghitung Jumlah di baris menu (sesuai Figma node 18:97 & 18:113)
-function MenuRowAction({ item, onOpenDetail }) {
-  const { cart, setQty } = useSession();
-  if (!item.available) return <span className="text-[12px] font-medium text-[#71717a]">Habis</span>;
+function MenuRowAction({ item, cart, onOpenDetail, canOrder }) {
+  const { setQty } = useSession();
 
-  // Hitung total qty item ini di keranjang (termasuk varian panas/es)
-  const matchingEntries = Object.entries(cart).filter(([k]) => k === item.id || k.startsWith(`${item.id}:`));
-  const totalQty = matchingEntries.reduce((s, [, q]) => s + q, 0);
-  const primaryKey = matchingEntries[0]?.[0] ?? (item.option ? cartKey(item.id, item.option.choices[0].id) : item.id);
-
-  if (totalQty > 0) {
-    return <Stepper value={totalQty} onChange={(v) => setQty(primaryKey, v)} />;
+  if (!item.available) {
+    return (
+      <span className="inline-flex min-h-[36px] items-center rounded-[10px] bg-kopi-100 px-3 text-xs font-semibold text-kopi-600">
+        Habis
+      </span>
+    );
   }
 
-  return (
-    <button
-      type="button"
-      onClick={() => (item.option ? onOpenDetail(item) : setQty(primaryKey, 1))}
-      className="inline-flex h-[36px] items-center justify-center gap-[8px] rounded-[10px] border border-[#e4e4e7] bg-white px-[14px] text-[14px] font-semibold leading-[20px] text-[#18181b] transition-colors hover:bg-[#f4f4f5]"
-    >
-      <Plus strokeWidth={1.75} className="size-[16px]" />
-      Tambah
-    </button>
-  );
-}
-
-// Baris menu persis sesuai Figma node 18:97
-function MenuRow({ item, onOpenDetail }) {
-  return (
-    <li className={cx('flex items-start gap-[14px] border-b border-[#e4e4e7] bg-white py-[16px]', !item.available && 'opacity-60')}>
-      <button type="button" onClick={() => onOpenDetail(item)} className="shrink-0 text-left">
-        <MenuThumb item={item} className="size-[84px] rounded-[14px]" />
+  if (!canOrder) {
+    return (
+      <button
+        type="button"
+        onClick={() => onOpenDetail(item)}
+        className="inline-flex min-h-[44px] items-center rounded-[10px] border border-kopi-200 bg-kertas px-3.5 text-xs font-semibold text-kopi-800 hover:bg-kopi-100"
+      >
+        Detail
       </button>
-      <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
-        <button
-          type="button"
-          onClick={() => onOpenDetail(item)}
-          className="text-left text-[16px] font-semibold leading-[24px] text-[#18181b] hover:text-[#7a4b2a]"
-        >
-          {item.name}
-        </button>
-        {item.description && (
-          <p className="text-[14px] font-normal leading-[20px] text-[#71717a]">{item.description}</p>
-        )}
-        <div className="flex w-full items-center justify-between pt-[6px]">
-          <span className="text-[16px] font-semibold leading-[24px] tabular-nums text-[#18181b]">
-            {priceText(item)}
-          </span>
-          <MenuRowAction item={item} onOpenDetail={onOpenDetail} />
-        </div>
-      </div>
-    </li>
-  );
+    );
+  }
+
+  // Hitung varian apa saja dari menu ini yang sudah masuk keranjang
+  const entries = Object.entries(cart).filter(([k, q]) => q > 0 && (k === item.id || k.startsWith(`${item.id}:`)));
+  const totalQty = entries.reduce((sum, [, q]) => sum + q, 0);
+
+  if (totalQty === 0) {
+    return (
+      <button
+        type="button"
+        onClick={() => (item.option ? onOpenDetail(item) : setQty(cartKey(item.id), 1))}
+        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-[10px] border border-kopi-200 bg-kertas px-3.5 text-[13px] font-semibold text-kopi-900 transition-colors hover:border-terakota-400 hover:bg-terakota-50"
+      >
+        <Plus strokeWidth={1.75} className="size-4 text-terakota-700" aria-hidden="true" />
+        Tambah
+      </button>
+    );
+  }
+
+  // Jika item punya pilihan (mis. Panas & Es keduanya di keranjang), buka detail agar tidak merusak jumlah varian lain
+  if (item.option && entries.length > 1) {
+    return (
+      <button
+        type="button"
+        onClick={() => onOpenDetail(item)}
+        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-[10px] bg-terakota-700 px-3.5 text-[13px] font-semibold text-kertas hover:bg-terakota-800"
+      >
+        {totalQty} di keranjang · +
+      </button>
+    );
+  }
+
+  const singleKey = entries[0][0];
+  return <Stepper value={entries[0][1]} onChange={(next) => setQty(singleKey, next)} />;
 }
 
 export default function MenuPage() {
-  const { table, cart, cartCount, addItems, myOrderIds } = useSession();
-  const { data: menu, loading, error } = useMenu();
-  const [query, setQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { table, cart, itemNotes, cartCount, myOrderIds } = useSession();
+  const { data: menu, loading, error, reload } = useMenu();
+  const { data: bestSellers } = useBestSellers();
+
+  const [category, setCategory] = useState('semua');
   const [searchOpen, setSearchOpen] = useState(false);
-  const [activeCat, setActiveCat] = useState('wedang');
-  const [showAllCats, setShowAllCats] = useState(true);
+  const [query, setQuery] = useState('');
+  const [selectedDish, setSelectedDish] = useState(null);
   const [assistantOpen, setAssistantOpen] = useState(false);
-  const [detailItem, setDetailItem] = useState(null);
+
+  useEffect(() => {
+    if (searchParams.get('bantuan') === '1') {
+      setAssistantOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  const lines = useMemo(() => (menu ? cartLines(menu, cart, itemNotes) : []), [menu, cart, itemNotes]);
+  const total = lines.reduce((sum, l) => sum + l.price * l.qty, 0);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return (menu ?? []).filter(
-      (m) => (showAllCats || m.category === activeCat) && (!q || m.name.toLowerCase().includes(q)),
-    );
-  }, [menu, query, activeCat, showAllCats]);
-
-  // 3 menu paling laris minggu ini persis seperti Figma node 18:76 (Wedang Uwuh Bu Ngadi, Nasi Pecel, Mendoan)
-  const topThree = useMemo(() => {
     if (!menu) return [];
-    const targetIds = ['wedang-uwuh-bungadi', 'nasi-pecel', 'mendoan'];
-    const found = targetIds.map((id) => menu.find((m) => m.id === id)).filter(Boolean);
-    return found.length > 0 ? found : menu.slice(0, 3);
-  }, [menu]);
+    const q = query.trim().toLowerCase();
+    return menu.filter((m) => {
+      if (category !== 'semua' && m.category !== category) return false;
+      if (!q) return true;
+      return m.name.toLowerCase().includes(q) || m.description.toLowerCase().includes(q);
+    });
+  }, [menu, category, query]);
 
-  const cartTotal = cartLines(menu ?? [], cart).reduce((sum, l) => sum + l.price * l.qty, 0);
+  const grouped = useMemo(() => {
+    return categories
+      .map((cat) => ({ ...cat, items: filtered.filter((m) => m.category === cat.id) }))
+      .filter((g) => g.items.length > 0);
+  }, [filtered]);
 
-  const handleSelectCategory = (catId) => {
-    if (!showAllCats && activeCat === catId) {
-      setShowAllCats(true);
-      setActiveCat('wedang');
-    } else {
-      setActiveCat(catId);
-      setShowAllCats(false);
-    }
-  };
+  const canOrder = Boolean(table);
 
   return (
-    <div className="min-h-dvh bg-white pb-[120px]">
-      {/* KEPALA HALAMAN MENU (Sesuai Figma node 18:33) */}
-      <header className="pt-[16px] px-[20px]">
-        <div className="flex items-center gap-[12px]">
-          <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-            <h1 className="truncate text-[20px] font-semibold leading-[28px] tracking-[-0.1px] text-[#18181b]">
+    <div className="min-h-dvh pb-28">
+      {/* Header halaman menu */}
+      <header className="sticky top-0 z-20 border-b border-kopi-200/80 bg-kertas/95 px-4 py-3 backdrop-blur-sm sm:px-6">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="truncate font-display text-[21px] font-bold leading-tight tracking-[-0.015em] text-kopi-950 sm:text-[28px]">
               Wedang Uwuh Bu Ngadi
             </h1>
-            <p className="text-[14px] font-normal leading-[20px] text-[#71717a]">{table.name}</p>
+            <p className="text-xs font-medium text-kopi-600">
+              {table ? table.name : 'Katalog menu · Patuk, Gunungkidul'}
+            </p>
           </div>
-
-          {myOrderIds.length > 0 && (
-            <Link
-              to="/pesanan"
-              className="relative grid size-[40px] shrink-0 place-items-center rounded-[12px] border border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
-              aria-label="Status pesanan"
+          <div className="flex items-center gap-1.5">
+            {myOrderIds.length > 0 && (
+              <Link
+                to="/pesanan"
+                className="relative grid size-[44px] place-items-center rounded-[12px] border border-kopi-200 bg-kertas text-kopi-800 hover:bg-kopi-100"
+                aria-label={`Lihat ${myOrderIds.length} pesanan saya`}
+              >
+                <ClipboardList strokeWidth={1.75} className="size-5" />
+                <span className="absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-terakota-700 text-[11px] font-bold text-kertas">
+                  {myOrderIds.length}
+                </span>
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setSearchOpen((v) => !v);
+                if (searchOpen) setQuery('');
+              }}
+              className="grid size-[44px] place-items-center rounded-[12px] border border-kopi-200 bg-kertas text-kopi-800 hover:bg-kopi-100"
+              aria-label={searchOpen ? 'Tutup pencarian' : 'Cari menu'}
             >
-              <Receipt strokeWidth={1.5} className="size-[20px]" />
-              <span className="absolute -top-1 -right-1 grid size-[18px] place-items-center rounded-full bg-[#7a4b2a] text-[10px] font-bold text-white">
-                {myOrderIds.length}
-              </span>
-            </Link>
-          )}
-
-          <button
-            type="button"
-            onClick={() => {
-              setSearchOpen((s) => !s);
-              if (searchOpen) setQuery('');
-            }}
-            className="grid size-[40px] shrink-0 place-items-center rounded-[12px] border border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
-            aria-label="Cari menu"
-          >
-            {searchOpen ? <X strokeWidth={1.5} className="size-[20px]" /> : <Search strokeWidth={1.5} className="size-[20px]" />}
-          </button>
+              {searchOpen ? <X strokeWidth={1.75} className="size-5" /> : <Search strokeWidth={1.75} className="size-5" />}
+            </button>
+          </div>
         </div>
 
         {searchOpen && (
-          <div className="mt-[12px]">
+          <div className="mt-3">
+            <label htmlFor="menu-search" className="sr-only">
+              Cari nama atau bahan menu
+            </label>
             <input
+              id="menu-search"
               type="search"
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Cari nama wedang, kopi, atau makanan…"
+              placeholder="Cari wedang, kombucha, nasi pecel…"
               className={input}
             />
           </div>
         )}
       </header>
 
-      {loading && <Loading text="Memuat menu…" />}
-      {error && <EmptyState title="Menu gagal dimuat">{error}</EmptyState>}
-
-      {menu && (
-        <div className="mt-[20px] flex flex-col gap-[20px]">
-          {/* KARTU TANYA MENU / DATANG ROMBONGAN (Sesuai Figma node 18:45 & screenshot user) */}
-          <div className="px-[20px]">
-            <button
-              type="button"
-              onClick={() => setAssistantOpen(true)}
-              className="flex w-full items-center gap-[12px] rounded-[16px] bg-[#f6eee7] px-[16px] py-[14px] text-left transition-colors hover:bg-[#efe2d6]"
-            >
-              <MessageCircle strokeWidth={1.5} className="size-[24px] shrink-0 text-[#5e3920]" />
-              <div className="flex min-w-0 flex-1 flex-col gap-[2px] text-[14px] leading-[20px] text-[#5e3920]">
-                <span className="font-semibold">Datang rombongan?</span>
-                <span className="font-normal">
-                  Tanya menu, kami bantu pilihkan sesuai jumlah orang dan anggaran.
-                </span>
-              </div>
-              <ChevronRight strokeWidth={1.5} className="size-[20px] shrink-0 text-[#5e3920]" />
-            </button>
-          </div>
-
-          {/* BARIS KATEGORI KOTAK IKON 56x56 (Sesuai Figma node 18:52) */}
-          <div className="flex items-start gap-[12px] overflow-x-auto px-[20px] [scrollbar-width:none]">
-            {categories.map((c) => {
-              const isSelected = activeCat === c.id;
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => handleSelectCategory(c.id)}
-                  className="flex w-[72px] shrink-0 flex-col items-center gap-[8px]"
-                >
-                  <div
-                    className={cx(
-                      'flex size-[56px] items-center justify-center rounded-[16px] transition-colors',
-                      isSelected ? 'bg-[#7a4b2a]' : 'bg-[#f4f4f5] hover:bg-[#e4e4e7]',
-                    )}
-                  >
-                    <img
-                      src={c.icon}
-                      alt={c.shortName}
-                      className={cx('size-[24px]', isSelected && 'brightness-0 invert')}
-                    />
-                  </div>
-                  <span
-                    className={cx(
-                      'w-full text-center text-[14px] leading-[20px]',
-                      isSelected ? 'font-semibold text-[#5e3920]' : 'font-normal text-[#18181b]',
-                    )}
-                  >
-                    {c.shortName || c.name}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* PALING LARIS MINGGU INI (Sesuai Figma node 18:76) */}
-          {!query && showAllCats && topThree.length > 0 && (
-            <section className="flex flex-col gap-[12px]">
-              <div className="px-[20px]">
-                <h2 className="text-[20px] font-semibold leading-[28px] tracking-[-0.1px] text-[#18181b]">
-                  Paling laris minggu ini
-                </h2>
-              </div>
-              <div className="flex items-start gap-[12px] overflow-x-auto px-[20px] [scrollbar-width:none]">
-                {topThree.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setDetailItem(item)}
-                    className="flex w-[148px] shrink-0 flex-col items-start gap-[4px] text-left"
-                  >
-                    <MenuThumb item={item} className="size-[148px] rounded-[16px]" />
-                    <div className="h-[4px] w-px" />
-                    <p className="w-full truncate text-[14px] font-semibold leading-[20px] text-[#18181b]">
-                      {item.name}
-                    </p>
-                    <p className="text-[14px] font-normal leading-[20px] text-[#71717a]">{priceText(item)}</p>
-                  </button>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* DAFTAR MENU PER KATEGORI (Sesuai Figma node 18:93) */}
-          {filtered.length === 0 && (
-            <EmptyState icon={Search} title="Menu tidak ditemukan">
-              Coba kata kunci atau kategori lain.
-            </EmptyState>
-          )}
-
-          {(showAllCats ? categories : categories.filter((c) => c.id === activeCat)).map((c) => {
-            const items = filtered.filter((m) => m.category === c.id);
-            if (items.length === 0) return null;
-            return (
-              <section key={c.id} className="px-[20px]">
-                <div className="flex items-center justify-between pb-[4px]">
-                  <h2 className="text-[20px] font-semibold leading-[28px] tracking-[-0.1px] text-[#18181b]">
-                    {c.name}
-                  </h2>
-                  <span className="text-[14px] font-normal leading-[20px] text-[#71717a]">{items.length} menu</span>
-                </div>
-                <ul>
-                  {items.map((item) => (
-                    <MenuRow key={item.id} item={item} onOpenDetail={setDetailItem} />
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
-        </div>
-      )}
-
-      {/* BAR KERANJANG MENGAMBANG (Sesuai Figma node 17:48) */}
-      {cartCount > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md px-[20px] pb-[20px]">
+      {/* Pita mode lihat menu jika pengunjung datang dari landing/Google Maps tanpa scan QR */}
+      {!canOrder && (
+        <div className="mx-4 mt-4 flex items-center justify-between gap-3 rounded-[14px] border border-kopi-200 bg-kertas-tua px-4 py-3">
+          <p className="text-xs leading-relaxed text-kopi-800">
+            Sedang dalam mode lihat menu. Scan QR meja saat di kedai untuk mulai memesan.
+          </p>
           <Link
-            to="/keranjang"
-            className="flex h-[60px] w-full items-center justify-between rounded-[16px] bg-[#7a4b2a] px-[16px] text-white shadow-[0px_1px_1px_rgba(0,0,0,0.04),0px_8px_12px_rgba(0,0,0,0.08)] transition-colors hover:bg-[#5e3920]"
+            to="/pesan"
+            className="inline-flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-[10px] bg-terakota-700 px-3 text-xs font-semibold text-kertas hover:bg-terakota-800"
           >
-            <div className="flex flex-col items-start">
-              <span className="text-[12px] font-medium leading-[16px] text-[#f6eee7]">{cartCount} item</span>
-              <span className="text-[16px] font-semibold leading-[24px] text-white">{formatRupiah(cartTotal)}</span>
-            </div>
-            <div className="flex items-center gap-[8px]">
-              <span className="text-[14px] font-semibold leading-[20px] text-white">Lihat keranjang</span>
-              <ShoppingBag strokeWidth={1.75} className="size-[20px] text-white" />
-            </div>
+            <QrCode strokeWidth={1.75} className="size-3.5" aria-hidden="true" />
+            Pilih meja
           </Link>
         </div>
       )}
 
-      <DishDetailSheet key={detailItem?.id} item={detailItem} onClose={() => setDetailItem(null)} />
-      <AssistantSheet open={assistantOpen} onClose={() => setAssistantOpen(false)} onAdd={addItems} />
+      {/* Banner asisten rombongan Tanya Menu */}
+      <div className="px-4 pt-4">
+        <button
+          type="button"
+          onClick={() => setAssistantOpen(true)}
+          className="flex w-full items-center gap-3 rounded-[16px] border border-terakota-200 bg-terakota-50 px-4 py-3.5 text-left transition-colors hover:bg-terakota-100/70"
+        >
+          <span className="grid size-[40px] shrink-0 place-items-center rounded-[12px] bg-kertas text-terakota-700 shadow-soft">
+            <MessageCircle strokeWidth={1.75} className="size-5" aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[14px] font-semibold text-kopi-950">Datang rombongan?</span>
+            <span className="block text-xs leading-relaxed text-kopi-700">
+              Tanya Menu bantu pilihkan sesuai jumlah orang & anggaran.
+            </span>
+          </span>
+          <ChevronRight strokeWidth={1.75} className="size-5 shrink-0 text-terakota-700" aria-hidden="true" />
+        </button>
+      </div>
+
+      {/* Filter kategori dengan chip Semua yang jujur (tanpa garis scrollbar kasar) */}
+      <nav
+        aria-label="Kategori menu"
+        className="mt-4 flex gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-6"
+      >
+        {[{ id: 'semua', shortName: 'Semua' }, ...categories].map((cat) => {
+          const active = category === cat.id;
+          const Icon = CAT_ICONS[cat.id] ?? Coffee;
+          return (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => setCategory(cat.id)}
+              aria-pressed={active}
+              className="flex shrink-0 flex-col items-center gap-1.5"
+            >
+              <span
+                className={cx(
+                  'grid size-[52px] place-items-center rounded-[14px] border transition-colors',
+                  active
+                    ? 'border-terakota-700 bg-terakota-700 text-kertas'
+                    : 'border-kopi-200 bg-kopi-50 text-kopi-700 hover:bg-kopi-100',
+                )}
+              >
+                <Icon strokeWidth={1.75} className="size-5" aria-hidden="true" />
+              </span>
+              <span
+                className={cx(
+                  'text-xs font-medium',
+                  active ? 'font-semibold text-terakota-800' : 'text-kopi-700',
+                )}
+              >
+                {cat.shortName}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {loading && <Loading text="Memuat daftar menu…" />}
+
+      {error && (
+        <div className="mx-4 mt-6 rounded-[16px] border border-[#f5c7c2] bg-[#fdf1f0] p-4 text-center">
+          <p className="text-sm font-semibold text-[#b42318]">Menu belum berhasil dimuat</p>
+          <p className="mt-1 text-xs text-kopi-700">{error}</p>
+          <button type="button" onClick={reload} className={cx(btnSecondary, 'mt-3')}>
+            Coba muat ulang
+          </button>
+        </div>
+      )}
+
+      {/* Paling laris minggu ini */}
+      {!loading && !error && category === 'semua' && !query.trim() && bestSellers?.length > 0 && (
+        <section className="mt-6">
+          <h2 className="px-4 font-display text-[24px] font-bold leading-tight text-kopi-950 sm:px-6 sm:text-[28px]">
+            Paling laris minggu ini
+          </h2>
+          <div className="mt-3 flex gap-3.5 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-6">
+            {bestSellers.slice(0, 5).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setSelectedDish(item)}
+                className="w-[148px] shrink-0 text-left sm:w-[164px]"
+              >
+                <MenuThumb item={item} className="size-[148px] sm:size-[164px]" width={164} height={164} eager />
+                <p className="mt-2 line-clamp-2 text-[14px] font-semibold leading-snug text-kopi-900">
+                  {item.name}
+                </p>
+                <p className="mt-0.5 text-xs font-semibold tabular-nums text-terakota-700">
+                  {formatRupiah(item.price)}
+                </p>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Daftar menu per kategori */}
+      {!loading && !error && grouped.length === 0 && (
+        <EmptyState icon={Search} title="Menu tidak ditemukan">
+          <p>Tidak ada hidangan yang cocok dengan “{query}”.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setQuery('');
+              setCategory('semua');
+            }}
+            className={cx(btnSecondary, 'mt-4')}
+          >
+            Tampilkan semua menu
+          </button>
+        </EmptyState>
+      )}
+
+      {!loading && !error && (
+        <div className="mt-6 space-y-8 px-4 sm:px-6">
+          {grouped.map((group) => (
+            <section key={group.id}>
+              <div className="flex items-baseline justify-between border-b border-kopi-200 pb-2">
+                <h2 className="font-display text-[24px] font-bold leading-tight text-kopi-950 sm:text-[28px]">
+                  {group.name}
+                </h2>
+                <span className="text-xs font-medium text-kopi-600">{group.items.length} menu</span>
+              </div>
+
+              <ul className="divide-y divide-kopi-100 md:grid md:grid-cols-2 md:gap-x-7 md:divide-y-0 xl:grid-cols-3">
+                {group.items.map((item) => {
+                  const [minP, maxP] = priceRange(item);
+                  const isSignature = ['wedang-uwuh-bungadi', 'kombucha', 'madu-jeruk'].includes(item.id);
+                  return (
+                    <li
+                      key={item.id}
+                      className={cx(
+                        'flex items-start gap-3.5 py-4 md:border-b md:border-kopi-100',
+                        !item.available && 'opacity-65',
+                      )}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => item.available && setSelectedDish(item)}
+                        className="group flex min-w-0 flex-1 items-start gap-3.5 text-left"
+                        aria-label={`Lihat detail ${item.name}`}
+                      >
+                        <MenuThumb item={item} className="size-[84px]" width={84} height={84} />
+                        <span className="min-w-0 flex-1">
+                          <span className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-[15px] font-semibold leading-snug text-kopi-950 group-hover:text-terakota-700">
+                              {item.name}
+                            </span>
+                            {isSignature && item.available && (
+                              <span className="rounded-full bg-terakota-50 px-2 py-0.5 text-[11px] font-semibold text-terakota-800">
+                                Khas
+                              </span>
+                            )}
+                            {!item.available && (
+                              <span className="rounded-full bg-kopi-100 px-2 py-0.5 text-[11px] font-semibold text-kopi-600">
+                                Habis
+                              </span>
+                            )}
+                          </span>
+                          <span className="mt-1 line-clamp-2 block text-[13px] leading-relaxed text-kopi-600">
+                            {item.description}
+                          </span>
+                          <span className="mt-2 block text-[14px] font-semibold tabular-nums text-terakota-700">
+                            {minP === maxP ? formatRupiah(minP) : `${formatRupiah(minP)}–${formatRupiah(maxP)}`}
+                          </span>
+                        </span>
+                      </button>
+
+                      <div className="shrink-0 self-end">
+                        <MenuRowAction
+                          item={item}
+                          cart={cart}
+                          onOpenDetail={setSelectedDish}
+                          canOrder={canOrder}
+                        />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
+
+      {/* Bilah keranjang mengambang — sejajar dengan lebar katalog */}
+      {canOrder && cartCount > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] p-4 md:max-w-[1360px] md:px-6">
+          <Link
+            to="/keranjang"
+            className="flex min-h-[56px] items-center justify-between rounded-[16px] bg-terakota-700 px-4 py-3 text-kertas shadow-lift transition-colors hover:bg-terakota-800"
+          >
+            <div>
+              <p className="text-xs font-medium text-terakota-100">{cartCount} item dipilih</p>
+              <p className="text-[16px] font-bold tabular-nums">{formatRupiah(total)}</p>
+            </div>
+            <span className="inline-flex items-center gap-2 text-[14px] font-semibold">
+              Lihat keranjang
+              <ShoppingBag strokeWidth={1.75} className="size-4" aria-hidden="true" />
+            </span>
+          </Link>
+        </div>
+      )}
+
+      <DishDetailSheet item={selectedDish} onClose={() => setSelectedDish(null)} canOrder={canOrder} />
+      <AssistantSheet open={assistantOpen} onClose={() => setAssistantOpen(false)} />
     </div>
   );
 }
