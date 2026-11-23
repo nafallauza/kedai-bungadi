@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+/*
+  Panduan Desain Figma (Section 12:34 - Warna, Huruf, Jarak, Sudut & Bayangan):
+  - Aksen Utama (Cokelat kopi): #7A4B2A
+  - Aksen Utama Tua (Cokelat tua): #5E3920
+  - Aksen Utama Muda (Cokelat susu): #F6EEE7
+  - Netral Putih: #FFFFFF
+  - Netral Latar: #FAFAFA
+  - Netral Abu Muda: #F4F4F5
+  - Netral Garis: #E4E4E7
+  - Netral Abu: #71717A
+  - Netral Teks: #18181B
+*/
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --color-kopi-50: #fafafa;
+  --color-kopi-100: #f4f4f5;
+  --color-kopi-200: #e4e4e7;
+  --color-kopi-300: #d4d4d8;
+  --color-kopi-400: #a1a1aa;
+  --color-kopi-500: #71717a;
+  --color-kopi-600: #52525b;
+  --color-kopi-700: #3f3f46;
+  --color-kopi-800: #27272a;
+  --color-kopi-900: #18181b;
+  --color-kopi-950: #18181b;
+
+  --color-terakota-50: #f6eee7;
+  --color-terakota-100: #ebd9cb;
+  --color-terakota-200: #d9b89f;
+  --color-terakota-300: #c0916e;
+  --color-terakota-400: #a66f48;
+  --color-terakota-500: #8f5a35;
+  --color-terakota-600: #7a4b2a;
+  --color-terakota-700: #7a4b2a;
+  --color-terakota-800: #5e3920;
+  --color-terakota-900: #4d2f1a;
+  --color-terakota-950: #2e1b0f;
+
+  --color-kertas: #ffffff;
+  --color-kertas-tua: #f6eee7;
+  --color-lampu: #b45309;
+
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.04);
+  --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.08);
+
+  --animate-slide-up: slide-up 0.2s ease-out;
+  --animate-fade-in: fade-in 0.16s ease-out;
+  --animate-ping-once: ping-once 0.8s ease-out;
+
+  @keyframes slide-up {
+    from { transform: translateY(14px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes ping-once {
+    0% { box-shadow: 0 0 0 0 rgb(122 75 42 / 0.3); }
+    100% { box-shadow: 0 0 0 10px rgb(122 75 42 / 0); }
+  }
+}
+
+@utility paper {
+  background-color: #ffffff;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-[#fafafa] font-sans text-[#18181b] antialiased;
+  }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    inset: 0;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
